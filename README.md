@@ -38,7 +38,24 @@ Writes figures to `code/temporal_epidemics/figures/` and edge lists / results to
 
 ## AS-level Internet from BGP
 
-In progress.
+A reproducible monthly time series of the Internet AS-level topology, built from
+the RIPE RIS `rrc00` routing-table archive: one `bview` dump per month from
+November 1999 to April 2026 (314 usable months), parsed and cleaned into weighted
+edge lists (`asn1 asn2 weight`, weight = AS-pair observation frequency), plus the
+exact-file manifest and per-month cleaning statistics. Analyses cover growth,
+degree distributions (power-law MLE), node/edge/hub turnover, degree correlations
+and Leiden community structure over 26.5 years.
+
+```bash
+brew install bgpdump
+cd code/internet_as_bgp
+python build_edges.py --start 1999-11 --end 2026-04   # ~4 h, ~35 GB transferred
+python analyze_networks.py                            # ~30 min
+python make_figures.py
+```
+Monthly edge lists and analysis tables are committed under `data/internet_as_bgp/`, so
+the analysis and figures can be reproduced without re-downloading the BGP dumps.
+See `code/internet_as_bgp/README.md` for details.
 
 ## Building the report
 

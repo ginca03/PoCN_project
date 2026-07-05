@@ -22,3 +22,7 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# Raw BGP dumps (re-downloadable; ~35 GB for the full series) and run logs
+data/internet_as_bgp/raw/
+code/internet_as_bgp/*.log

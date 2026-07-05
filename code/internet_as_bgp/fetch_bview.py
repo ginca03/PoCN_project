@@ -28,14 +28,18 @@ def months(start, end):
             y, m = y + 1, 1
 
 
-def list_bviews(year, month):
+def list_bviews(year, month, retries=3):
     url = f"{BASE}/{year:04d}.{month:02d}/"
-    try:
-        html = urllib.request.urlopen(url, timeout=60).read().decode("utf-8", "replace")
-    except Exception as e:
-        print(f"  ! {year}-{month:02d}: index fetch failed ({e})", file=sys.stderr)
-        return []
-    return sorted(set(BVIEW_RE.findall(html)))  # list of (YYYYMMDD, HHMM)
+    for attempt in range(1, retries + 1):
+        try:
+            html = urllib.request.urlopen(url, timeout=60).read().decode("utf-8", "replace")
+            return sorted(set(BVIEW_RE.findall(html)))  # list of (YYYYMMDD, HHMM)
+        except Exception as e:
+            print(f"  ! {year}-{month:02d}: index fetch failed ({e}), attempt {attempt}/{retries}",
+                  file=sys.stderr)
+            import time
+            time.sleep(5 * attempt)
+    return []
 
 
 def pick(bviews):
