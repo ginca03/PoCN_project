@@ -6,6 +6,7 @@ Writes to figures/ :
   fig2_degree.png     degree CCDFs (snapshots) | power-law alpha(t)
   fig3_turnover.png   node/edge birth-death rates | Jaccard persistence | hub overlap
   fig4_structure.png  k_nn(k) snapshots | mu(t) | Leiden Q(t) | #communities
+  fig5_snapshots.png  network drawings: 1999 giant component | 2026 inner core
 
 Run after `analyze_networks.py`:  python make_figures.py
 """
@@ -185,12 +186,49 @@ def fig4(df):
     fig.savefig(os.path.join(FIG, "fig4_structure.png"))
 
 
+def fig5():
+    """Draw the earliest snapshot and the dense core of the latest one."""
+    import random
+    from matplotlib.collections import LineCollection
+    ig.set_random_number_generator(random.Random(42))
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5.4))
+    cmap = plt.get_cmap("viridis")
+    for ax, month, mode in [(axes[0], "1999-11", "full"), (axes[1], "2026-04", "core")]:
+        g = degrees_of(month)
+        if mode == "full":
+            g = g.connected_components().giant()
+            title = f"{month}  (giant component:\n$N$={g.vcount():,}, $E$={g.ecount():,})"
+        else:
+            core = np.asarray(g.coreness())
+            k = 15
+            while (core >= k).sum() > 4000:      # keep the drawing readable
+                k += 5
+            g = g.induced_subgraph(np.flatnonzero(core >= k).tolist())
+            title = (f"{month}  ($k$-core, $k\\geq${k}:\n"
+                     f"$N$={g.vcount():,}, $E$={g.ecount():,})")
+        xy = np.asarray(g.layout_fruchterman_reingold(niter=500).coords)
+        deg = np.asarray(g.degree(), dtype=float)
+        rel = np.log1p(deg) / np.log1p(deg.max())
+        segs = xy[np.asarray(g.get_edgelist())]
+        ax.add_collection(LineCollection(segs, colors="#888888", linewidths=0.12,
+                                         alpha=0.18, zorder=1))
+        order = np.argsort(deg)                  # draw hubs on top
+        ax.scatter(xy[order, 0], xy[order, 1], s=1 + 28 * rel[order] ** 2,
+                   c=cmap(0.9 * rel[order]), linewidths=0, zorder=2)
+        ax.set_title(title, fontsize=8)
+        ax.set_aspect("equal")
+        ax.axis("off")
+    fig.tight_layout()
+    fig.savefig(os.path.join(FIG, "fig5_snapshots.png"))
+
+
 def main():
     df = load_metrics()
     fig1(df)
     fig2(df)
     fig3(df)
     fig4(df)
+    fig5()
     print(f"figures -> {FIG}")
 
 

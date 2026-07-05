@@ -2,118 +2,79 @@
 
 \resp{Giancarlo Venturato}
 
-\section{Models and mean-field thresholds}
+\section{Models, topologies and mean-field thresholds}
 
 We study the four canonical compartmental models on \emph{time-varying} contact
-networks. A node is Susceptible (S), Exposed (E, infected but not yet
-infectious), Infectious (I) or Removed (R). In discrete time, on every contact of
-snapshot $t$ an S--I pair transmits with probability $\beta$; an infectious node
-leaves state I with probability $\mu$, and in SEIR an exposed node matures with
-probability $\sigma$. The four models are the same core loop restricted to
-different states~\cite{pastorsatorras2015epidemic}: SI (no recovery), SIS
-(I$\to$S), SIR (I$\to$R) and SEIR (S$\to$E$\to$I$\to$R).
-
-The order parameter is the endemic prevalence (SI/SIS) or the final epidemic size
-(SIR/SEIR), which is non-zero only above a critical ratio $(\beta/\mu)_c$. On the
-\emph{activity-driven} temporal network the heterogeneous mean-field
-threshold is governed by the \emph{activity} moments and not by the aggregated
-degree~\cite{perra2012activity},
+networks: SI, SIS (I$\to$S), SIR (I$\to$R) and SEIR (S$\to$E$\to$I$\to$R), all
+run by one discrete-time engine~\cite{pastorsatorras2015epidemic}. On every
+contact of snapshot $t$ an S--I pair transmits with probability $\beta$; an
+infectious node recovers with probability $\mu$ (and an exposed one matures
+with probability $\sigma$ in SEIR). The order parameter is the endemic
+prevalence (SI/SIS) or the final epidemic size (SIR/SEIR), non-zero only above
+a critical ratio $(\beta/\mu)_c$. On an \emph{activity-driven} (AD) temporal
+network the heterogeneous mean-field threshold is set by the \emph{activity}
+moments, not by the aggregated degree~\cite{perra2012activity}, whereas
+compressing the observation window into a single static graph gives the
+classical heterogeneous (HMF) and quenched (QMF) mean-field values evaluated
+on that aggregate:
 \begin{equation}
   \left(\frac{\beta}{\mu}\right)_c^{\mathrm{AD}}
-    = \frac{1}{m\left(\langle a\rangle + \sqrt{\langle a^2\rangle}\right)} ,
-  \label{eq:ad}
-\end{equation}
-whereas treating the whole observation window as a single \emph{static} graph
-gives the classical heterogeneous- (HMF) and quenched- (QMF) mean-field results
-evaluated on that aggregate,
-\begin{equation}
-  \left(\frac{\beta}{\mu}\right)_c^{\mathrm{HMF}} = \frac{\langle k\rangle}{\langle k^2\rangle},
+    \!= \frac{1}{m\!\left(\langle a\rangle + \sqrt{\langle a^2\rangle}\right)},
   \qquad
-  \left(\frac{\beta}{\mu}\right)_c^{\mathrm{QMF}} = \frac{1}{\lambda_{\max}(A)} .
-  \label{eq:static}
+  \left(\frac{\beta}{\mu}\right)_c^{\mathrm{HMF}}
+    \!= \frac{\langle k\rangle}{\langle k^2\rangle},
+  \qquad
+  \left(\frac{\beta}{\mu}\right)_c^{\mathrm{QMF}}
+    \!= \frac{1}{\lambda_{\max}(A)} .
+  \label{eq:thresholds}
 \end{equation}
 Because the aggregate accumulates every contact ever made, $\langle k^2\rangle$
-and $\lambda_{\max}$ are large and the static threshold is orders of magnitude
-below Eq.~\eqref{eq:ad}: assuming that contacts are simultaneous systematically
-over-estimates spreading. Making this contrast explicit is the aim of the
-task.\footnote{The simulator uses discrete-time per-step probabilities
+and $\lambda_{\max}$ are large and the static thresholds sit orders of
+magnitude below the temporal one: assuming contacts to be simultaneous
+systematically over-estimates spreading. Quantifying this contrast is the aim
+of the study.\footnote{The simulator uses discrete-time per-step probabilities
 $(\beta,\mu)$, which map onto the continuous rates of
-Eqs.~\eqref{eq:ad}--\eqref{eq:static} for $\beta,\mu\ll1$; the agreement in
+Eq.~\eqref{eq:thresholds} for $\beta,\mu\ll1$; the agreement in
 Fig.~\ref{fig:epi}(b) confirms the mapping in the regime studied.}
 
-\section{Synthetic temporal topologies and method}
-
-A temporal network is a sequence of $T$ single-step snapshots. We use two
-structurally different synthetic generators, so the models are exercised across a
-variety of topologies. (i)~The \emph{activity-driven} (AD) model~\cite{perra2012activity}:
-each node draws an activity $a_i \propto x^{-\gamma}$, $x\in[\varepsilon,1]$; at
-every step it is active with probability $a_i$ and, if so, fires $m$ links to
-random partners. There is no fixed backbone. (ii)~An \emph{edge-activated}
-process on a fixed \emph{scale-free} (Barab\'asi--Albert) or \emph{homogeneous}
-(Erd\H{o}s--R\'enyi) backbone whose edges switch on independently with probability
-$p$ each step, so the aggregate is the backbone itself. As a real-world test we
-additionally use the empirical \emph{SocioPatterns Hypertext~2009} face-to-face
-contact network~\cite{isella2011whats} ($113$
-attendees, $20$~s resolution, $\sim\!59$~h, binned into $5$-min snapshots).
-Against each temporal run we compare two null models built from the same data:
-the \emph{aggregated static} network (all edges present at every step) and a
-\emph{time-shuffled} surrogate (contacts reassigned to random steps, destroying
-temporal order while preserving the aggregate and the total contact volume). A
-single seeded stochastic engine (\texttt{Python}~+~\texttt{igraph}) runs all four
-models on any of these sequences; results are averaged over $15$--$40$
-realisations.\footnote{Generators, engine, thresholds and output edge lists are in
-\texttt{code/temporal\_epidemics/} and \texttt{data/temporal\_epidemics/}; see
-Holme~\&~Saram\"aki~\cite{holme2012temporal} for the temporal-network framework.}
-Synthetic default: $N=1500$, $T=800$, $m=1$, $\gamma=2.1$, $\mu=0.02$.
+The models are exercised across a variety of topologies
+(Holme~\&~Saram\"aki~\cite{holme2012temporal}): (i)~the AD
+model~\cite{perra2012activity}, where node $i$ is active with probability
+$a_i\propto x^{-\gamma}$ per step and fires $m$ random links (no fixed
+backbone); (ii)~an \emph{edge-activated} process on a fixed scale-free
+(Barab\'asi--Albert) or homogeneous (Erd\H{o}s--R\'enyi) backbone whose edges
+switch on with probability $p$ per step; and (iii)~the empirical
+\emph{SocioPatterns Hypertext 2009} face-to-face contact
+network~\cite{isella2011whats} (113 attendees, $\sim$59 h, 5-min snapshots).
+Every temporal run is compared with two null models built from the same data
+--- the \emph{aggregated static} network and a \emph{time-shuffled} surrogate
+(contacts reassigned to random steps, preserving the aggregate and contact
+volume) --- with results averaged over 15--40 seeded realisations
+(supplementary Sec.~\ref{sec:epi-supp}).
 
 \section{Results}
 
-Figure~\ref{fig:epi}(a) shows the four models on one AD network above threshold:
-SI saturates, SIS relaxes to an endemic plateau, and SIR/SEIR are single
-outbreaks, with SEIR delayed by the latent stage. Panel~(b) locates the SIS
-threshold: the simulated prevalence departs from zero exactly at the
-activity-driven prediction $\beta_c^{\mathrm{AD}}$ of Eq.~\eqref{eq:ad}
-(Table~\ref{tab:epi}), far above the static-network value
-$\beta_c^{\mathrm{HMF}}$. The time-shuffled curve coincides with the temporal one,
-confirming that in a memoryless activity-driven model the \emph{ordering} of
-contacts is immaterial -- the relevant effect is concurrency, not order.
-Panel~(c) isolates that concurrency effect for SIR: collapsing the timeline into
-the aggregated static graph turns a slow, bounded outbreak (peak
-prevalence $\approx0.18$) into an explosive one (peak $\approx0.98$, final size
-$1$). Panel~(d) exercises the models across backbone \emph{structure}: with the
-same mean degree $\langle k\rangle=4$, the scale-free BA backbone (hubs) yields a
-markedly larger outbreak than the homogeneous ER one (peak $0.12$ vs.\ $0.06$),
-while both remain far below their common aggregated-static limit. Treating a
-temporal network as static is therefore not a harmless approximation: it moves the
-epidemic threshold by nearly three orders of magnitude and grossly inflates the
-predicted outbreak.
-
-Finally, Fig.~\ref{fig:emp} applies the same analysis to the empirical Hypertext
-2009 contact network. The picture is qualitatively identical -- aggregation
-inflates a bounded outbreak (final size $0.20$) into a near-complete one
-($0.999$) -- but with one instructive difference from the synthetic case:
-\emph{time-shuffling now lowers the outbreak} (final size $0.11 < 0.20$), because
-real contacts carry temporal correlations (bursts, group co-presence) that a
-memoryless activity-driven model lacks. Both the timing \emph{and} the ordering of
-contacts matter in real data.
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{lccc}
-\hline
- & $\beta_c^{\mathrm{AD}}$ (temporal) & $\beta_c^{\mathrm{HMF}}$ (static) & $\beta_c^{\mathrm{QMF}}$ (static) \\
-\hline
-$(\beta/\mu)_c$ & $7.91$ & $9.5\times10^{-3}$ & $1.1\times10^{-2}$ \\
-$\beta_c$ (at $\mu=0.02$) & $0.158$ & $1.9\times10^{-4}$ & $2.2\times10^{-4}$ \\
-\hline
-\end{tabular}
-\caption{Critical points for the default AD network ($\langle a\rangle=0.041$,
-$\langle a^2\rangle=7.4\times10^{-3}$; aggregate $\langle k\rangle=61$,
-$\langle k^2\rangle=6.4\times10^3$). The temporal threshold is $\sim\!800\times$
-the static one.}
-\label{tab:epi}
-\end{table}
+Figure~\ref{fig:epi}(a) shows the four models on one AD network above
+threshold: SI saturates, SIS relaxes to an endemic plateau, and SIR/SEIR are
+single outbreaks, with SEIR delayed by the latent stage. Panel~(b) locates the
+SIS threshold: the simulated prevalence departs from zero exactly at the AD
+prediction of Eq.~\eqref{eq:thresholds} --- $\beta_c^{\mathrm{AD}}=0.158$
+versus $\beta_c^{\mathrm{HMF}}=1.9\times10^{-4}$ at $\mu=0.02$, a factor
+$\sim$800 (Table~\ref{tab:epi}). The time-shuffled curve coincides with the
+temporal one: in a memoryless AD model the \emph{ordering} of contacts is
+immaterial --- what matters is concurrency. Panel~(c) isolates that effect for
+SIR: aggregating the timeline turns a slow, bounded outbreak (peak prevalence
+$\approx0.18$) into an explosive one (peak $\approx0.98$, final size 1).
+Panel~(d) varies the backbone \emph{structure}: at equal
+$\langle k\rangle=4$, the scale-free backbone spreads markedly more than the
+homogeneous one (peak $0.12$ vs.\ $0.06$), both far below their common
+aggregated-static limit. On the empirical contact network the picture repeats
+--- aggregation inflates the final size from $0.20$ to $0.999$ --- with one
+instructive difference: \emph{time-shuffling now lowers the outbreak}
+($0.11<0.20$), because real contacts carry temporal correlations (bursts,
+group co-presence) that memoryless models lack
+(supplementary Fig.~\ref{fig:emp}). Both the timing \emph{and} the ordering
+of contacts matter in real data.
 
 \begin{figure}[H]
 \centering
@@ -134,6 +95,38 @@ timeline (red) inflates the SIR outbreak relative to the temporal dynamics (blue
 spreads more than the homogeneous ER one.}
 \label{fig:epi}
 \end{figure}
+
+\clearpage
+\section{Supplementary material}
+\label{sec:epi-supp}
+
+\paragraph{Method details.} Synthetic defaults: $N=1500$, $T=800$ steps, $m=1$,
+$\gamma=2.1$, $\varepsilon=10^{-2}$, $\mu=0.02$. The AD activity distribution is
+$a_i \propto x^{-\gamma}$ with $x\in[\varepsilon,1]$; backbone edge-activation
+uses $p$ chosen to match the AD contact volume. The empirical dataset
+(SocioPatterns Hypertext 2009, 20-s resolution) is binned into 5-minute
+snapshots. All experiments are seeded and reproducible with a single command;
+generators, the epidemic engine, threshold calculators and the output edge
+lists (aggregated networks in \texttt{node\_from,node\_to,weight} format) are
+in \texttt{code/temporal\_epidemics/} and \texttt{data/temporal\_epidemics/}.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lccc}
+\hline
+ & $\beta_c^{\mathrm{AD}}$ (temporal) & $\beta_c^{\mathrm{HMF}}$ (static) & $\beta_c^{\mathrm{QMF}}$ (static) \\
+\hline
+$(\beta/\mu)_c$ & $7.91$ & $9.5\times10^{-3}$ & $1.1\times10^{-2}$ \\
+$\beta_c$ (at $\mu=0.02$) & $0.158$ & $1.9\times10^{-4}$ & $2.2\times10^{-4}$ \\
+\hline
+\end{tabular}
+\caption{Critical points for the default AD network ($\langle a\rangle=0.041$,
+$\langle a^2\rangle=7.4\times10^{-3}$; aggregate $\langle k\rangle=61$,
+$\langle k^2\rangle=6.4\times10^3$). The temporal threshold is $\sim\!800\times$
+the static one.}
+\label{tab:epi}
+\end{table}
 
 \begin{figure}[H]
 \centering
