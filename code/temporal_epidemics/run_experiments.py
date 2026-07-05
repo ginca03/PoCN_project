@@ -46,7 +46,8 @@ plt.rcParams.update({"figure.dpi": 130, "font.size": 10, "axes.grid": True,
                      "grid.alpha": 0.3, "axes.spines.top": False,
                      "axes.spines.right": False})
 COL = {"SI": "#444", "SIS": "#1b7837", "SIR": "#2166ac", "SEIR": "#b2182b",
-       "temporal": "#2166ac", "concurrent": "#b2182b", "shuffled": "#f1a340"}
+       "temporal": "#2166ac", "concurrent": "#b2182b", "shuffled": "#f1a340",
+       "ba": "#2166ac", "er": "#1b7837", "agg": "#b2182b"}
 
 
 def banner(txt: str) -> None:
@@ -146,26 +147,58 @@ def main() -> None:
                np.column_stack([np.arange(T + 1), traj_for_csv]),
                delimiter=",", header="step,prevalence", comments="")
 
-    # ---- Fig 4: second topology (edge-activated backbone) ----------------- #
-    banner("Fig 4: SIR on an edge-activated Barabasi-Albert backbone")
+    # ---- Fig 4: edge-activated backbones -- BA vs ER (topology variety) ---- #
+    banner("Fig 4: SIR on edge-activated BA vs ER backbones + aggregated")
     ba = tn.edge_activated(N=N, T=T, backbone="ba", m_ba=2, p_active=0.03, seed=SEED)
+    er = tn.edge_activated(N=N, T=T, backbone="er", avg_k=4.0, p_active=0.03, seed=SEED)
     ba_agg = ba.aggregate()
     tn.save_edge_list(ba_agg, os.path.join(DATA, "backbone_aggregated_edges.csv"))
-    ba_agg_seq = ba.static_sequence()
-    print(f"backbone: {ba_agg.ecount()} edges, <k>={np.mean(ba_agg.degree()):.2f}")
+    print(f"BA backbone: {ba_agg.ecount()} edges, <k>={np.mean(ba_agg.degree()):.2f}; "
+          f"ER backbone: {er.aggregate().ecount()} edges, <k>={np.mean(er.aggregate().degree()):.2f}")
     fig, ax = plt.subplots(figsize=(6.4, 4.0))
-    for name, net, nr in (("temporal", ba, N_RUNS), ("concurrent", ba_agg_seq, 8)):
-        res = epi.average_runs(net, n_runs=nr, model="SIR", beta=0.35,
-                               mu=MU, n_seeds=5)
-        label = "aggregated static" if name == "concurrent" else name
-        t = np.arange(T + 1)
-        ax.plot(t, res["mean_prevalence"], color=COL[name], label=label, lw=1.8)
-        print(f"  {label:18s} peak={res['mean_prevalence'].max():.3f}  "
+    plots = (("BA backbone (temporal)", ba, "ba", N_RUNS),
+             ("ER backbone (temporal)", er, "er", N_RUNS),
+             ("BA aggregated static", ba.static_sequence(), "agg", 8))
+    t = np.arange(T + 1)
+    for label, net, ckey, nr in plots:
+        res = epi.average_runs(net, n_runs=nr, model="SIR", beta=0.35, mu=MU, n_seeds=5)
+        ax.plot(t, res["mean_prevalence"], color=COL[ckey], label=label, lw=1.8)
+        print(f"  {label:24s} peak={res['mean_prevalence'].max():.3f}  "
               f"final size={res['cumulative_incidence']:.3f}")
     ax.set(xlabel="time step", ylabel="prevalence  I(t)/N",
-           title="SIR on edge-activated BA backbone (β=0.35, μ=%.2f)" % MU)
+           title="SIR on two backbone topologies (β=0.35, μ=%.2f)" % MU)
     ax.legend(frameon=False)
     fig.tight_layout(); fig.savefig(os.path.join(FIG, "fig4_backbone.png")); plt.close(fig)
+
+    # ---- Fig 5: empirical temporal contact network (real-world "plus") ---- #
+    banner("Fig 5: SIR on the SocioPatterns Hypertext-2009 contact network")
+    emp_path = os.path.join(DATA, "empirical", "sp_hypertext_contacts.csv")
+    if os.path.exists(emp_path):
+        emp = tn.load_sociopatterns(emp_path, bin_seconds=300)
+        emp_shuf = emp.time_shuffled(seed=SEED)
+        emp_agg = emp.static_sequence()
+        tn.save_edge_list(emp.aggregate(),
+                          os.path.join(DATA, "empirical", "sp_hypertext_aggregated_edges.csv"))
+        print(f"empirical: N={emp.N}, T={emp.T}, contacts={emp.n_contacts}, "
+              f"aggregate edges={emp.aggregate().ecount()}")
+        beta_emp = 0.08
+        fig, ax = plt.subplots(figsize=(6.4, 4.0))
+        te = np.arange(emp.T + 1)
+        for label, net, ckey, nr in (("temporal", emp, "temporal", 40),
+                                     ("aggregated static", emp_agg, "concurrent", 40),
+                                     ("shuffled", emp_shuf, "shuffled", 40)):
+            res = epi.average_runs(net, n_runs=nr, model="SIR", beta=beta_emp,
+                                   mu=MU, n_seeds=3)
+            ax.plot(te, res["mean_prevalence"], color=COL[ckey], label=label, lw=1.8)
+            print(f"  {label:18s} peak={res['mean_prevalence'].max():.3f}  "
+                  f"final size={res['cumulative_incidence']:.3f}")
+        ax.set(xlabel="time step (5-min bins)", ylabel="prevalence  I(t)/N",
+               title="SIR on empirical contacts: Hypertext 2009 "
+                     f"(N={emp.N}, β={beta_emp}, μ={MU})")
+        ax.legend(frameon=False)
+        fig.tight_layout(); fig.savefig(os.path.join(FIG, "fig5_empirical.png")); plt.close(fig)
+    else:
+        print(f"  SKIP: empirical data not found at {emp_path}")
 
     # ---- thresholds table ------------------------------------------------- #
     with open(os.path.join(DATA, "thresholds.csv"), "w") as fh:

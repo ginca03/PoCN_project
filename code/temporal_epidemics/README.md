@@ -7,7 +7,7 @@ surrogates, and against the mean-field epidemic thresholds.
 ## Files
 | file | role |
 |------|------|
-| `temporal_networks.py` | generators (activity-driven; edge-activated BA/ER backbone), aggregation, static & time-shuffled null models. Uses **python-igraph**. |
+| `temporal_networks.py` | generators (activity-driven; edge-activated BA/ER backbone), an empirical SocioPatterns loader, aggregation, static & time-shuffled null models. Uses **python-igraph**. |
 | `epidemic.py` | single discrete-time stochastic engine; model = SI/SIS/SIR/SEIR via a small transition table. |
 | `theory.py` | analytic thresholds: activity-driven `1/[m(<a>+√<a²>)]` vs static HMF `<k>/<k²>` and QMF `1/λ_max`. |
 | `run_experiments.py` | driver: builds networks, runs all experiments, writes figures + data. |
@@ -28,9 +28,14 @@ Outputs: figures in `figures/`, edge lists + trajectory + thresholds in
   threshold: treating the timeline as static wrongly predicts an epidemic where
   the temporal dynamics have none. Time-shuffled ≈ temporal (ordering is
   irrelevant in a memoryless activity-driven model — a control).
-- **fig3 / fig4** — aggregating the timeline (all contacts simultaneous) turns a
-  slow, bounded temporal outbreak into an explosive one (peak ≈0.98 vs ≈0.18),
-  on both the activity-driven and the edge-activated BA topologies.
+- **fig3** — aggregating the timeline (all contacts simultaneous) turns a slow,
+  bounded temporal outbreak into an explosive one (peak ≈0.98 vs ≈0.18).
+- **fig4** — backbone structure at fixed ⟨k⟩=4: the scale-free BA network spreads
+  more than the homogeneous ER one (peak 0.12 vs 0.06).
+- **fig5** — the same analysis on the empirical SocioPatterns Hypertext-2009
+  contact network; here time-shuffling *reduces* the outbreak (final 0.11 vs 0.20),
+  exposing temporal correlations absent from the memoryless synthetic models.
+  Data auto-loaded from `data/temporal_epidemics/empirical/` (see its `SOURCE.txt`).
 
 ## Key numbers (default seed)
 `N=1500, T=800, m=1, γ=2.1, μ=0.02`: β_c temporal-AD ≈ 0.158, β_c static-HMF ≈

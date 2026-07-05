@@ -166,6 +166,42 @@ def edge_activated(N: int = 2000, T: int = 1000, backbone: str = "ba",
 
 
 # --------------------------------------------------------------------------- #
+#  Empirical temporal network (SocioPatterns)
+# --------------------------------------------------------------------------- #
+def load_sociopatterns(path: str, bin_seconds: int = 300) -> TemporalNetwork:
+    """
+    Load a SocioPatterns-style timestamped contact list into a TemporalNetwork.
+
+    The file has one contact per line, ``source, target, time`` (comment lines
+    start with ``#``); timestamps are in seconds.  Contacts are binned into
+    consecutive windows of ``bin_seconds`` (one snapshot per window; duplicate
+    contacts within a window are collapsed), and node ids are remapped to a
+    contiguous range.  Default here: the ACM Hypertext 2009 conference network
+    (113 attendees, 20 s resolution, ~59 h), retrieved from the Netzschleuder
+    repository (``sp_hypertext``); see Isella et al., J. Theor. Biol. 271 (2011).
+    """
+    raw = np.loadtxt(path, delimiter=",", comments="#", usecols=(0, 1, 2),
+                     dtype=np.int64)
+    src, dst, t = raw[:, 0], raw[:, 1], raw[:, 2]
+    nodes = np.unique(np.concatenate([src, dst]))
+    remap = {int(n): i for i, n in enumerate(nodes)}
+    src = np.array([remap[int(x)] for x in src])
+    dst = np.array([remap[int(x)] for x in dst])
+    step = (t - t.min()) // bin_seconds
+    T = int(step.max()) + 1
+    snaps = []
+    for s in range(T):
+        m = step == s
+        if not m.any():
+            snaps.append(np.empty((0, 2), dtype=np.int64))
+            continue
+        e = np.unique(np.stack([src[m], dst[m]], axis=1), axis=0)  # dedupe window
+        snaps.append(e)
+    return TemporalNetwork(len(nodes), snaps, kind="empirical(sp_hypertext)",
+                           meta=dict(bin_seconds=bin_seconds, source="sp_hypertext"))
+
+
+# --------------------------------------------------------------------------- #
 #  I/O helpers
 # --------------------------------------------------------------------------- #
 def save_edge_list(g: ig.Graph, path: str) -> None:

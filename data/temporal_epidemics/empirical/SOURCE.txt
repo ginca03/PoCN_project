@@ -1,0 +1,13 @@
+sp_hypertext_contacts.csv
+=========================
+Temporal face-to-face contact network of the ACM Hypertext 2009 conference
+(113 attendees, 20 s resolution, ~59 h). Columns: source, target, time (seconds).
+
+Source: Netzschleuder network repository, dataset `sp_hypertext`
+        (https://networks.skewed.de/net/sp_hypertext), retrieved 2026-07-05.
+Original data: SocioPatterns project (http://www.sociopatterns.org).
+Reference: L. Isella, J. Stehle, A. Barrat, C. Cattuto, J.-F. Pinton,
+           W. Van den Broeck, "What's in a crowd? Analysis of face-to-face
+           behavioral networks", J. Theor. Biol. 271 (2011) 166-180.
+
+Redistributed here for reproducibility of the epidemic study; please cite the reference above.
