@@ -3,12 +3,13 @@
 Course project for *Physics of Complex Networks: Structure and Dynamics*
 (SCQ2101383), University of Padova, a.y. 2025/26. Author: Giancarlo Venturato.
 
-Two studies are included:
+Two projects are included (numbers, names and scores as listed on the course
+Moodle):
 
-| Type | Title |
-|------|-------|
-| Theoretical | Epidemic spreading on temporal networks: SI, SIS, SIR, SEIR (mean-field) |
-| Data | Monthly snapshots of the Internet AS-level network from BGP data |
+| # | Type | Title | Score |
+|----|------|-------|-------|
+| 22 | Theoretical | Epidemic spreading on temporal networks: SI, SIS, SIR, SEIR (mean-field) | 0.5 |
+| 40 | Data | Monthly snapshots of the Internet AS-level network from BGP data | 1.2 |
 
 ## Repository layout
 
@@ -31,7 +32,7 @@ epidemic thresholds.
 
 ```bash
 pip install -r requirements.txt
-cd code/temporal_epidemics && python run_experiments.py     # ~10 s, seeded
+cd code/temporal_epidemics && python run_experiments.py     # ~15 s, seeded
 ```
 Writes figures to `code/temporal_epidemics/figures/` and edge lists / results to
 `data/temporal_epidemics/`. See `code/temporal_epidemics/README.md` for details.
