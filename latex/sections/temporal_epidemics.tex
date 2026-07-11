@@ -49,7 +49,7 @@ network~\cite{isella2011whats} (113 attendees, $\sim$59 h, 5-min snapshots).
 Every temporal run is compared with two null models built from the same data
 --- the \emph{aggregated static} network and a \emph{time-shuffled} surrogate
 (contacts reassigned to random steps, preserving the aggregate and contact
-volume) --- with results averaged over 15--40 seeded realisations
+volume) --- with results averaged over 8--40 seeded realisations
 (supplementary Sec.~\ref{sec:epi-supp}).
 
 \section{Results}
@@ -64,7 +64,7 @@ $\sim$800 (Table~\ref{tab:epi}). The time-shuffled curve coincides with the
 temporal one: in a memoryless AD model the \emph{ordering} of contacts is
 immaterial --- what matters is concurrency. Panel~(c) isolates that effect for
 SIR: aggregating the timeline turns a slow, bounded outbreak (peak prevalence
-$\approx0.18$) into an explosive one (peak $\approx0.98$, final size 1).
+$\approx0.17$) into an explosive one (peak $\approx0.98$, final size 1).
 Panel~(d) varies the backbone \emph{structure}: at equal
 $\langle k\rangle=4$, the scale-free backbone spreads markedly more than the
 homogeneous one (peak $0.12$ vs.\ $0.06$), both far below their common
@@ -103,7 +103,7 @@ spreads more than the homogeneous ER one.}
 \paragraph{Method details.} Synthetic defaults: $N=1500$, $T=800$ steps, $m=1$,
 $\gamma=2.1$, $\varepsilon=10^{-2}$, $\mu=0.02$. The AD activity distribution is
 $a_i \propto x^{-\gamma}$ with $x\in[\varepsilon,1]$; backbone edge-activation
-uses $p$ chosen to match the AD contact volume. The empirical dataset
+uses $p$ chosen to give a contact volume comparable to the AD runs. The empirical dataset
 (SocioPatterns Hypertext 2009, 20-s resolution) is binned into 5-minute
 snapshots. All experiments are seeded and reproducible with a single command;
 generators, the epidemic engine, threshold calculators and the output edge

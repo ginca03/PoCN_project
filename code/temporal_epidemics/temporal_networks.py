@@ -115,7 +115,8 @@ def activity_driven(N: int = 2000, T: int = 1000, m: int = 1,
 
     Each node i has activity a_i = eta * x_i with x_i ~ f(x) = x^{-gamma},
     x in [eps, 1].  At every step, node i is active with probability a_i and, if
-    active, opens m undirected links to m distinct uniformly-chosen partners.
+    active, opens m undirected links to uniformly-chosen partners (sampled with
+    replacement; accidental self-pairs are dropped).
     """
     rng = np.random.default_rng(seed)
     a = np.clip(eta * _sample_activity(N, gamma, eps, rng), 0.0, 1.0)

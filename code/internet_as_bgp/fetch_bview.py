@@ -9,8 +9,8 @@ Usage:
     python fetch_bview.py --start 1999-11 --end 2026-04 --out ../../data/internet_as_bgp/raw
     python fetch_bview.py --start 2010-01 --end 2010-12 --dry-run      # list only, no download
 
-This is a STUB to validate the download step on a small window before scaling to the
-full ~318-month series. Verify behavior on a 1-year window first.
+Used in two ways: as a library by build_edges.py (list_bviews/pick supply the monthly
+file selection) and standalone to inspect (--dry-run) or pre-download a window.
 """
 import argparse, os, re, sys, urllib.request
 from datetime import date

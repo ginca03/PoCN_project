@@ -14,8 +14,8 @@ surrogates, and against the mean-field epidemic thresholds.
 
 ## Run
 ```bash
-pip install python-igraph numpy matplotlib     # scipy/pandas already present
-python run_experiments.py                       # ~10 s, fully seeded
+pip install python-igraph numpy matplotlib
+python run_experiments.py                       # ~15 s, fully seeded
 ```
 Outputs: figures in `figures/`, edge lists + trajectory + thresholds in
 `../../data/temporal_epidemics/`.
@@ -29,7 +29,7 @@ Outputs: figures in `figures/`, edge lists + trajectory + thresholds in
   the temporal dynamics have none. Time-shuffled ≈ temporal (ordering is
   irrelevant in a memoryless activity-driven model — a control).
 - **fig3** — aggregating the timeline (all contacts simultaneous) turns a slow,
-  bounded temporal outbreak into an explosive one (peak ≈0.98 vs ≈0.18).
+  bounded temporal outbreak into an explosive one (peak ≈0.98 vs ≈0.17).
 - **fig4** — backbone structure at fixed ⟨k⟩=4: the scale-free BA network spreads
   more than the homogeneous ER one (peak 0.12 vs 0.06).
 - **fig5** — the same analysis on the empirical SocioPatterns Hypertext-2009

@@ -61,14 +61,15 @@ class Trajectory:
 
     @property
     def cumulative_incidence(self) -> float:
-        """Final fraction ever infected (peak of I+R+E vs the initial susceptibles)."""
+        """(E+I+R)/N at the last step: the fraction ever infected for SI/SIR/SEIR
+        (for SIS, where recovery returns to S, it is the final infected fraction)."""
         N = self.S[0] + self.E[0] + self.I[0] + self.R[0]
         return float((self.E[-1] + self.I[-1] + self.R[-1]) / N)
 
     @property
-    def endemic_prevalence(self, frac: float = 0.2) -> float:
-        """Mean prevalence over the last ``frac`` of the run (SI/SIS steady state)."""
-        k = max(1, int(len(self.I) * frac))
+    def endemic_prevalence(self) -> float:
+        """Mean prevalence over the last 20% of the run (SI/SIS steady state)."""
+        k = max(1, int(len(self.I) * 0.2))
         N = self.S[0] + self.E[0] + self.I[0] + self.R[0]
         return float(self.I[-k:].mean() / N)
 
@@ -119,16 +120,16 @@ def simulate(net, model: str = "SIR", beta: float = 0.5, mu: float = 0.01,
             newly = np.empty(0, dtype=np.int64)
 
         # ---- 2. progression + recovery on the pre-step state --------------- #
-        if has_E:
+        if recovers:
+            infectious = np.nonzero(state == I)[0]  # pre-step I set: nodes promoted
+        if has_E:                                   # this step stay I >= 1 full step
             exposed = np.nonzero(state == E)[0]
             if exposed.size:
                 promote = exposed[rng.random(exposed.size) < sigma]
                 state[promote] = I
-        if recovers:
-            infectious = np.nonzero(state == I)[0]
-            if infectious.size:
-                rec = infectious[rng.random(infectious.size) < mu]
-                state[rec] = rec_state
+        if recovers and infectious.size:
+            rec = infectious[rng.random(infectious.size) < mu]
+            state[rec] = rec_state
 
         # ---- 3. commit new infections -------------------------------------- #
         state[newly] = E if has_E else I

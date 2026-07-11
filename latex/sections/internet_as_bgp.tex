@@ -7,27 +7,28 @@
 At the coarsest scale the Internet is a network of \emph{Autonomous Systems}
 (ASes) exchanging reachability information through the Border Gateway Protocol
 (BGP). We reconstruct one AS-level snapshot per month from the routing-table
-dumps archived by the RIPE RIS collector \texttt{rrc00}~\cite{ripeRIS}, taking
-the first available \texttt{bview} dump of each month (day~01 at 00:00~UTC
-when present; the exact file used is recorded in a manifest). The archive
+dumps of the RIPE RIS collector \texttt{rrc00}~\cite{ripeRIS}, taking each
+month's first available \texttt{bview} (day~01 at 00:00~UTC when present; the
+exact file used is recorded in a manifest). The archive
 spans \textbf{November 1999 -- April 2026}; 314 of the 318 calendar months
 yield a usable table (April--July 2000 are missing from the archive;
 truncated files are replaced by the month's largest dump). Three archive
-formats occur --- modern MRT (parsed with \texttt{bgpdump}), the pre-2001
-Zebra MRT dialect and the GateD text tables of early 2000 --- the latter two
-read by purpose-written parsers (supplementary Sec.~\ref{sec:as-supp}).
+formats occur --- modern MRT (parsed with \texttt{bgpdump}), pre-2001 Zebra
+MRT and the GateD text tables of 2000, the latter two read by purpose-written
+parsers (supplementary Sec.~\ref{sec:as-supp}).
 
-Every \texttt{AS\_PATH} is cleaned as follows: consecutive duplicate ASNs are
-collapsed (route prepending); malformed or empty paths are dropped; paths
-containing \texttt{AS\_SET}s are dropped entirely (median $0.02\%$ of entries
-per month); paths shorter than two ASNs are dropped. At least $96.4\%$ of RIB
-entries are retained in every month (median $99.9\%$). Each consecutive ASN
+Every \texttt{AS\_PATH} is cleaned: consecutive duplicate ASNs are collapsed
+(route prepending); malformed or empty paths, paths containing
+\texttt{AS\_SET}s (median $0.02\%$ of entries per month) and paths shorter
+than two ASNs are dropped. At least $96.4\%$ of RIB entries are retained in
+every month (median $99.9\%$). Each consecutive ASN
 pair of a retained path becomes an undirected edge in canonical
-$(\min,\max)$ order, self-loops are discarded, and the integer edge weight
-counts the RIB entries in which the pair was observed that month; ignoring
-the weight column yields the unweighted simple graph used for all metrics.
-ASNs are the integer AS numbers from the dumps, so node identity is
-consistent across snapshots; per-month cleaning statistics accompany the
+$(\min,\max)$ order (self-loops discarded); the integer weight counts the
+RIB entries in which the pair appears that month --- an observation
+frequency, \emph{not} capacity, bandwidth, traffic volume or economic
+relationship. Ignoring weights yields the unweighted simple graph used for
+all metrics. ASNs are the integer AS numbers from the dumps, so node identity
+is consistent across snapshots; per-month cleaning statistics accompany the
 edge lists.
 
 An essential caveat: these graphs are \emph{not} the physical Internet
@@ -47,16 +48,16 @@ graph grows from $6\,045$ nodes and $10\,634$ edges (Nov.~1999) to $86\,114$
 nodes and $239\,705$ edges (Apr.~2026), i.e.\ $\times14.2$ and $\times22.5$.
 Densification is mild --- $\langle k\rangle$ rises from $3.5$ to $5.6$ --- and
 the sharp 2019--2021 step coincides with a major expansion of the collector's
-peer set (a visibility effect). The graph is one connected component at all
-times (LCC $\geq99.99\%$ of nodes; two snapshots are drawn in supplementary
-Fig.~\ref{fig:assnap}).
+peer set (a visibility effect). The graph is effectively a single connected
+component throughout (LCC $\geq99.99\%$ of nodes in every month; two
+snapshots are drawn in supplementary Fig.~\ref{fig:assnap}).
 
 The degree distribution is heavy-tailed in every snapshot (supplementary
 Fig.~\ref{fig:asdegree}), the classical signature of the AS
 graph~\cite{faloutsos1999power}. Discrete maximum-likelihood
 fits~\cite{clauset2009power,alstott2014powerlaw} give a strikingly stable
 exponent, $\hat\alpha\in[2.01,2.21]$ across the whole series (typical
-$\hat\sigma\approx0.03$), averaging $2.12$ in the first five years and $2.10$
+$\hat\sigma\approx0.025$), averaging $2.12$ in the first five years and $2.10$
 in the last five: the scale-free character of the AS topology persists while
 the network grows by more than an order of magnitude. A log-likelihood
 comparison with the lognormal~\cite{clauset2009power} is inconclusive in
@@ -71,8 +72,9 @@ The apex is instead rigid: consecutive months share $95\%$ of their top-20
 highest-degree ASes, and the dominant transit providers change only on
 multi-year timescales --- the 1999 leaders (AS701 UUNET, AS1239 Sprint) give
 way to AS174 (Cogent), AS3356 (Level\,3/Lumen) and, since the mid-2010s,
-AS6939 (Hurricane Electric); hub \emph{identity} is sticky even as hub degree
-grows 100-fold.
+AS6939 (Hurricane Electric); hub \emph{identity} is sticky even as hub
+degrees grow by roughly an order of magnitude (and up to $\sim$100-fold for
+AS174 and AS3356 relative to their 1999 values).
 Degree--degree correlations are strongly disassortative throughout,
 $\langle k_{nn}\rangle(k)\sim k^{\mu}$ with $\mu\approx-0.53$ around
 2000~\cite{pastorsatorras2001dynamical}, drifting steadily to
@@ -80,8 +82,8 @@ $\mu\approx-0.70$ by 2024--2026: low-degree customers hang ever more
 exclusively off high-degree providers. Leiden community
 detection~\cite{traag2019leiden} finds significant but evolving mesoscale
 structure: modularity rises to a plateau of $Q\approx0.72$ around 2010, then
-falls to $\approx0.61$ after 2019 while the number of communities triples
-($\sim$30 to $\sim$80): more visible interconnection (IXPs, direct content
+falls to $\approx0.61$ after 2019 while the number of communities more than
+doubles ($\sim$30 to $\sim$80): more visible interconnection (IXPs, direct content
 peering) flattens the hierarchy, and a better-instrumented collector sees
 more of it (supplementary Fig.~\ref{fig:asstructure}).
 

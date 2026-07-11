@@ -32,7 +32,7 @@ Three archive formats are handled transparently: modern MRT `TABLE_DUMP`/
 the pre-2001 Zebra MRT dialect (single record packing many RIB entries, 16-bit
 ASNs — built-in binary parser), and the gzipped GateD *text* tables that appear
 in a few months of 2000 (built-in text parser). Truncated/corrupt archive
-files are detected (a real table dump always yields ≥100k usable paths) and
+files are detected (a real table dump always yields ≥50k usable paths) and
 the pipeline falls back to the remaining files of the month, largest first.
 
 ## Outputs (in `data/internet_as_bgp/`)
@@ -57,5 +57,6 @@ python analyze_networks.py                            # ~30 min
 python make_figures.py
 ```
 
-Both stages are restartable: months whose edge file already exists are skipped
-(`--overwrite` forces a rebuild).
+The build stage is restartable: months whose edge file already exists are
+skipped (`--overwrite` forces a rebuild); `analyze_networks.py` recomputes its
+tables in full each run (cheap next to the build).
